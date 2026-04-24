@@ -251,7 +251,7 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      background-color: var(--walnut);
+      background: url('wattle-hero.jpg') center center / cover no-repeat var(--walnut);
     }
 
     .hero__video {
@@ -261,6 +261,14 @@
       height: 100%;
       object-fit: cover;
       object-position: center center;
+    }
+
+    /* Hide Safari/iOS native play button on autoplay-blocked videos */
+    video::-webkit-media-controls-panel,
+    video::-webkit-media-controls-start-playback-button,
+    video::-webkit-media-controls {
+      display: none !important;
+      -webkit-appearance: none !important;
     }
 
     .hero__overlay {
@@ -1154,8 +1162,10 @@
       muted
       loop
       playsinline
+      webkit-playsinline
+      preload="auto"
+      disableRemotePlayback
       aria-hidden="true"
-      poster="wattle-hero.jpg"
     >
       <source src="video-koala.mp4" type="video/mp4" />
     </video>
@@ -1498,8 +1508,10 @@
       muted
       loop
       playsinline
+      webkit-playsinline
+      preload="auto"
+      disableRemotePlayback
       aria-hidden="true"
-      poster="wattle-hero.jpg"
     >
       <source src="video-shores.mp4" type="video/mp4" />
     </video>
@@ -1573,6 +1585,35 @@
 
       window.addEventListener('scroll', onScroll, { passive: true });
       onScroll();
+    })();
+
+    /* Video autoplay fallback for Safari/iOS */
+    (function () {
+      var videos = document.querySelectorAll('video[autoplay]');
+      function forcePlay() {
+        videos.forEach(function (v) {
+          v.muted = true;
+          v.setAttribute('muted', '');
+          v.setAttribute('playsinline', '');
+          v.play().catch(function () {});
+        });
+      }
+      forcePlay();
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) forcePlay();
+      });
+      window.addEventListener('scroll', function once() {
+        forcePlay();
+        window.removeEventListener('scroll', once);
+      }, { passive: true });
+      window.addEventListener('touchstart', function once() {
+        forcePlay();
+        window.removeEventListener('touchstart', once);
+      }, { passive: true });
+      window.addEventListener('click', function once() {
+        forcePlay();
+        window.removeEventListener('click', once);
+      });
     })();
   </script>
 
